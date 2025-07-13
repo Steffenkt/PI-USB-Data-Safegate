@@ -92,6 +92,9 @@ prepare_package() {
     cp config/config.ini "$BUILD_DIR/etc/pi-usb-safegate/config.ini.template"
     cp config/config.ini "$BUILD_DIR/etc/pi-usb-safegate/config.ini"
     
+    # Copy systemd service file
+    cp config/pi-usb-safegate.service "$BUILD_DIR/etc/systemd/system/"
+    
     # Update main.py to use system config path
     sed -i 's|ConfigManager()|ConfigManager("/etc/pi-usb-safegate/config.ini")|g' "$BUILD_DIR/usr/share/pi-usb-safegate/main.py"
     
