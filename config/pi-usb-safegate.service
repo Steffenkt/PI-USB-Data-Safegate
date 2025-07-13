@@ -1,0 +1,52 @@
+[Unit]
+Description=PI USB Data Safegate Service
+Documentation=file:///usr/share/doc/pi-usb-safegate/
+After=network.target multi-user.target clamav-daemon.service
+Wants=network.target
+Requires=clamav-daemon.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/usr/share/pi-usb-safegate
+ExecStart=/usr/bin/python3 /usr/share/pi-usb-safegate/daemon.py start
+ExecStop=/usr/bin/python3 /usr/share/pi-usb-safegate/daemon.py stop
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Restart configuration
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Security settings
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/pi-usb-safegate /var/run/pi-usb-safegate /tmp
+PrivateTmp=true
+PrivateDevices=false
+RemoveIPC=true
+
+# Resource limits
+LimitNOFILE=1024
+LimitNPROC=64
+
+# Environment
+Environment=PYTHONPATH=/usr/share/pi-usb-safegate
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pi-usb-safegate
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
+Alias=usb-safegate.service

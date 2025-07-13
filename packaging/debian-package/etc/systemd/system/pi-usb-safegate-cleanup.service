@@ -1,0 +1,15 @@
+[Unit]
+Description=PI USB Data Safegate Cleanup Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/usr/share/pi-usb-safegate
+ExecStart=/usr/bin/python3 -c "from modules.cleanup_scheduler import CleanupScheduler; from modules.config_manager import ConfigManager; import time; cs = CleanupScheduler(ConfigManager('/etc/pi-usb-safegate/config.ini')); cs.start_cleanup_daemon(); time.sleep(86400)"
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

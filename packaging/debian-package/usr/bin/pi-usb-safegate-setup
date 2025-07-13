@@ -1,0 +1,80 @@
+#!/bin/bash
+# First-run configuration script for PI USB Data Safegate
+
+CONFIG_FILE="/etc/pi-usb-safegate/config.ini"
+TEMP_CONFIG="/tmp/pi-usb-safegate-config.tmp"
+
+echo "================================================================================"
+echo "                    PI USB Data Safegate - First Run Setup"
+echo "================================================================================"
+echo
+
+if [[ $EUID -ne 0 ]]; then
+    echo "This setup script must be run as root (use sudo)"
+    exit 1
+fi
+
+echo "This script will help you configure PI USB Data Safegate for first use."
+echo "You can also manually edit the configuration file at: $CONFIG_FILE"
+echo
+
+read -p "Would you like to configure the application now? (y/n): " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Configuration skipped. Run 'sudo pi-usb-safegate-setup' later to configure."
+    exit 0
+fi
+
+# Copy current config to temp file
+cp "$CONFIG_FILE" "$TEMP_CONFIG"
+
+echo
+echo "=== EMAIL CONFIGURATION ==="
+read -p "SMTP Server (e.g., smtp.gmail.com): " smtp_server
+read -p "SMTP Port (e.g., 587): " smtp_port
+read -p "Email Username: " email_username
+read -s -p "Email Password: " email_password
+echo
+read -p "Sender Name: " sender_name
+
+# Update email configuration
+sed -i "s|smtp_server = .*|smtp_server = $smtp_server|g" "$TEMP_CONFIG"
+sed -i "s|smtp_port = .*|smtp_port = $smtp_port|g" "$TEMP_CONFIG"
+sed -i "s|smtp_username = .*|smtp_username = $email_username|g" "$TEMP_CONFIG"
+sed -i "s|smtp_password = .*|smtp_password = $email_password|g" "$TEMP_CONFIG"
+sed -i "s|sender_name = .*|sender_name = $sender_name|g" "$TEMP_CONFIG"
+
+echo
+echo "=== CLOUD STORAGE CONFIGURATION ==="
+echo "Select cloud storage provider:"
+echo "1) Nextcloud"
+echo "2) Dropbox"
+read -p "Choice (1-2): " cloud_choice
+
+if [[ $cloud_choice == "1" ]]; then
+    sed -i "s|provider = .*|provider = nextcloud|g" "$TEMP_CONFIG"
+    read -p "Nextcloud URL: " nextcloud_url
+    read -p "Nextcloud Username: " nextcloud_username
+    read -s -p "Nextcloud Password: " nextcloud_password
+    echo
+    read -p "Upload Path (e.g., /USB_Transfers): " upload_path
+    
+    sed -i "s|nextcloud_url = .*|nextcloud_url = $nextcloud_url|g" "$TEMP_CONFIG"
+    sed -i "s|nextcloud_username = .*|nextcloud_username = $nextcloud_username|g" "$TEMP_CONFIG"
+    sed -i "s|nextcloud_password = .*|nextcloud_password = $nextcloud_password|g" "$TEMP_CONFIG"
+    sed -i "s|nextcloud_upload_path = .*|nextcloud_upload_path = $upload_path|g" "$TEMP_CONFIG"
+    
+elif [[ $cloud_choice == "2" ]]; then
+    sed -i "s|provider = .*|provider = dropbox|g" "$TEMP_CONFIG"
+    read -p "Dropbox Access Token: " dropbox_token
+    sed -i "s|dropbox_access_token = .*|dropbox_access_token = $dropbox_token|g" "$TEMP_CONFIG"
+fi
+
+# Save configuration
+cp "$TEMP_CONFIG" "$CONFIG_FILE"
+rm "$TEMP_CONFIG"
+
+echo
+echo "Configuration saved successfully!"
+echo "You can now run 'sudo pi-usb-safegate' to start the application."
+echo "Or find it in your applications menu under 'PI USB Data Safegate'."

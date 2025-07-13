@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Post-removal script for PI USB Data Safegate
+
+set -e
+
+case "$1" in
+    purge)
+        echo "Purging PI USB Data Safegate configuration..."
+        
+        # Remove configuration files
+        rm -rf /etc/pi-usb-safegate || true
+        
+        # Remove log files
+        rm -rf /var/log/pi-usb-safegate || true
+        
+        # Remove logrotate configuration
+        rm -f /etc/logrotate.d/pi-usb-safegate || true
+        
+        # Remove udev rules
+        rm -f /etc/udev/rules.d/99-pi-usb-safegate.rules || true
+        
+        # Reload udev rules
+        if command -v udevadm >/dev/null 2>&1; then
+            udevadm control --reload-rules || true
+        fi
+        
+        echo "PI USB Data Safegate configuration purged."
+        ;;
+        
+    remove)
+        echo "Removing PI USB Data Safegate..."
+        
+        # Update desktop database
+        if command -v update-desktop-database >/dev/null 2>&1; then
+            update-desktop-database /usr/share/applications || true
+        fi
+        
+        echo "PI USB Data Safegate removed."
+        ;;
+        
+    upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        ;;
+        
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

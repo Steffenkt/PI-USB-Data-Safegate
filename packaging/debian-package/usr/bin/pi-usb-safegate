@@ -1,0 +1,18 @@
+#!/bin/bash
+# PI USB Data Safegate launcher script
+
+# Check if running as root
+if [[ $EUID -ne 0 ]]; then
+    echo "This application requires root privileges to access USB devices."
+    echo "Please run with: sudo pi-usb-safegate"
+    exit 1
+fi
+
+# Change to application directory
+cd /usr/share/pi-usb-safegate
+
+# Set up logging
+export PYTHONPATH="/usr/share/pi-usb-safegate:$PYTHONPATH"
+
+# Run the application
+python3 main.py "$@"

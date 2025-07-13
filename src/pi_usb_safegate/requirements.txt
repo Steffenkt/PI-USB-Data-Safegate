@@ -1,0 +1,6 @@
+requests>=2.25.1
+configparser>=5.0.0
+pathlib>=1.0.1
+pyudev>=0.23.2
+python-magic>=0.4.24
+clamd>=1.0.2

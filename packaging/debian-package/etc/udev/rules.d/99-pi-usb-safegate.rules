@@ -1,0 +1,3 @@
+# USB storage device rules for PI USB Data Safegate
+# This rule helps detect when USB storage devices are connected
+SUBSYSTEM=="block", KERNEL=="sd[a-z][0-9]", ACTION=="add", ENV{ID_FS_USAGE}=="filesystem", TAG+="systemd"
