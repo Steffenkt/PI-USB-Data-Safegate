@@ -319,46 +319,30 @@ jobs:
           git push origin "v${VERSION}"
       
       - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          PACKAGE_FILE="${{ needs.validate.outputs.package_file }}"
+          APP_TITLE="${{ needs.validate.outputs.app_title }}"
+          
+          # Prepare release flags
+          RELEASE_FLAGS=""
+          if [[ "${{ github.event.inputs.draft }}" == "true" ]]; then
+            RELEASE_FLAGS="$RELEASE_FLAGS --draft"
+          fi
+          if [[ "${{ github.event.inputs.prerelease }}" == "true" ]]; then
+            RELEASE_FLAGS="$RELEASE_FLAGS --prerelease"
+          fi
+          
+          # Create release with assets
+          gh release create "v${VERSION}" \
+            --title "${APP_TITLE}" \
+            --notes-file "${{ steps.release_notes.outputs.release_notes_file }}" \
+            $RELEASE_FLAGS \
+            "./artifacts/${PACKAGE_FILE}" \
+            "./artifacts/${PACKAGE_FILE}.sha256" \
+            "./artifacts/${PACKAGE_FILE}.md5"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ needs.validate.outputs.version }}
-          release_name: ${{ needs.validate.outputs.app_title }}
-          body_path: ${{ steps.release_notes.outputs.release_notes_file }}
-          draft: ${{ github.event.inputs.draft == 'true' }}
-          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
-      
-      - name: Upload Debian Package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/${{ needs.validate.outputs.package_file }}
-          asset_name: ${{ needs.validate.outputs.package_file }}
-          asset_content_type: application/vnd.debian.binary-package
-      
-      - name: Upload SHA256 Checksum
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/${{ needs.validate.outputs.package_file }}.sha256
-          asset_name: ${{ needs.validate.outputs.package_file }}.sha256
-          asset_content_type: text/plain
-      
-      - name: Upload MD5 Checksum
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/${{ needs.validate.outputs.package_file }}.md5
-          asset_name: ${{ needs.validate.outputs.package_file }}.md5
-          asset_content_type: text/plain
       
       - name: Release Summary
         run: |
