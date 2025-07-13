@@ -1,5 +1,9 @@
 name: Build and Release PI USB Data Safegate
 
+permissions:
+  contents: write
+  actions: read
+
 on:
   workflow_dispatch:
     inputs:
