@@ -16,7 +16,7 @@ PACKAGE_VERSION=$(python3 -c "import sys; sys.path.insert(0, 'src/pi_usb_safegat
 PACKAGE_NAME=$(python3 -c "import sys; sys.path.insert(0, 'src/pi_usb_safegate'); from version import PACKAGE_NAME; print(PACKAGE_NAME)")
 PACKAGE_ARCH=$(python3 -c "import sys; sys.path.insert(0, 'src/pi_usb_safegate'); from version import PACKAGE_ARCHITECTURE; print(PACKAGE_ARCHITECTURE)")
 PACKAGE_DIR="packaging/debian-package"
-BUILD_DIR="build"
+BUILD_DIR="/tmp/pi-usb-safegate-build-$$"
 
 # Functions
 print_step() {
@@ -43,9 +43,10 @@ check_dependencies() {
     print_step "Checking build dependencies"
     
     # Check for required tools
-    local tools=("dpkg-deb" "lintian" "fakeroot")
+    local required_tools=("dpkg-deb" "fakeroot")
+    local optional_tools=("lintian")
     
-    for tool in "${tools[@]}"; do
+    for tool in "${required_tools[@]}"; do
         if ! command -v "$tool" >/dev/null 2>&1; then
             print_error "Missing required tool: $tool"
             print_info "Install with: sudo apt install $tool"
@@ -53,7 +54,13 @@ check_dependencies() {
         fi
     done
     
-    print_success "All build dependencies found"
+    for tool in "${optional_tools[@]}"; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            print_warning "Missing optional tool: $tool (linting will be skipped)"
+        fi
+    done
+    
+    print_success "All required build dependencies found"
 }
 
 clean_build() {
@@ -61,6 +68,7 @@ clean_build() {
     
     rm -rf "$BUILD_DIR"
     rm -f "${PACKAGE_NAME}_${PACKAGE_VERSION}_${PACKAGE_ARCH}.deb"
+    rm -rf build/  # Also clean old build dir if it exists
     
     print_success "Build directory cleaned"
 }
@@ -74,6 +82,9 @@ prepare_package() {
     # Copy package structure
     cp -r "$PACKAGE_DIR"/* "$BUILD_DIR/"
     
+    # Ensure application directory exists
+    mkdir -p "$BUILD_DIR/usr/share/pi-usb-safegate/"
+    
     # Copy application files
     cp -r src/pi_usb_safegate/* "$BUILD_DIR/usr/share/pi-usb-safegate/"
     
@@ -84,9 +95,13 @@ prepare_package() {
     # Update main.py to use system config path
     sed -i 's|ConfigManager()|ConfigManager("/etc/pi-usb-safegate/config.ini")|g' "$BUILD_DIR/usr/share/pi-usb-safegate/main.py"
     
-    # Set proper permissions
-    find "$BUILD_DIR" -type f -exec chmod 644 {} \;
+    # Set proper permissions (important for WSL)
     find "$BUILD_DIR" -type d -exec chmod 755 {} \;
+    find "$BUILD_DIR" -type f -exec chmod 644 {} \;
+    
+    # Fix DEBIAN directory permissions specifically (dpkg-deb is strict about this)
+    chmod 755 "$BUILD_DIR/DEBIAN"
+    find "$BUILD_DIR/DEBIAN" -type f -exec chmod 644 {} \;
     
     # Make scripts executable
     chmod 755 "$BUILD_DIR/DEBIAN/postinst"
@@ -118,6 +133,9 @@ build_package() {
     
     # Build the package
     fakeroot dpkg-deb --build "$BUILD_DIR" "$package_file"
+    
+    # Clean up temp build directory
+    rm -rf "$BUILD_DIR"
     
     if [[ -f "$package_file" ]]; then
         print_success "Package built successfully: $package_file"

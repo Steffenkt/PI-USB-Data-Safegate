@@ -8,7 +8,7 @@ Depends: python3 (>= 3.7), python3-pip, python3-tk, python3-dev, clamav, clamav-
 Recommends: desktop-file-utils, shared-mime-info
 Suggests: systemd
 Installed-Size: 1024
-Maintainer: PI USB Data Safegate Team <noreply@example.com>
+Maintainer: Steffen Kaster <skaster@kaster-development.de>
 Description: Secure USB to cloud transfer with malware scanning
  PI USB Data Safegate is a security-focused application for Raspberry Pi
  that provides secure transfer of files from USB drives to cloud storage.
@@ -23,5 +23,5 @@ Description: Secure USB to cloud transfer with malware scanning
  .
  This application is designed for Raspberry Pi OS and other Debian-based
  systems. It requires root privileges to access USB devices securely.
-Homepage: https://github.com/example/pi-usb-safegate
-Bugs: https://github.com/example/pi-usb-safegate/issues
+Homepage: https://github.com/Steffenkt/PI-USB-Data-Safegate
+Bugs: https://github.com/Steffenkt/PI-USB-Data-Safegate/issues
