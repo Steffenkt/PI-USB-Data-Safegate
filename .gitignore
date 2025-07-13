@@ -57,6 +57,11 @@ config.ini.backup
 temp/
 tmp/
 
+# Build artifacts
+*.deb
+*.deb.sha256
+*.deb.md5
+
 # Quarantine directory
 quarantine/
 
