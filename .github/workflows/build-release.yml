@@ -109,7 +109,7 @@ jobs:
           echo "✓ Version ${VERSION} is available for release"
 
   build:
-    name: Build Debian Package
+    name: Build Debian Package (debhelper)
     runs-on: ubuntu-latest
     needs: validate
     
@@ -122,14 +122,15 @@ jobs:
         with:
           python-version: '3.9'
       
-      - name: Install System Dependencies
+      - name: Install Build Dependencies (debhelper)
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            dpkg-dev \
-            lintian \
-            fakeroot \
-            build-essential
+            debhelper \
+            devscripts \
+            dh-python \
+            build-essential \
+            lintian
       
       - name: Install Python Dependencies
         run: |
@@ -150,48 +151,31 @@ jobs:
           make version
           make filename
       
-      - name: Build Debian Package
+      - name: Build Debian Package (dpkg-buildpackage)
         run: |
-          echo "Building package for version ${{ needs.validate.outputs.version }}"
-          
-          # Make build script executable
-          chmod +x scripts/build-package.sh
-          
-          # Build the package
-          ./scripts/build-package.sh
-          
-          # Verify package was created
-          if [ ! -f "${{ needs.validate.outputs.package_file }}" ]; then
-            echo "✗ Package file not found: ${{ needs.validate.outputs.package_file }}"
-            exit 1
+          echo "Building package (debhelper) for version ${{ needs.validate.outputs.version }}"
+          CHANGELOG_VERSION=$(head -1 debian/changelog | sed -E 's/^[^(]+\(([^)]+)\).*$/\1/')
+          if [ "$CHANGELOG_VERSION" != "${{ needs.validate.outputs.version }}" ]; then
+            echo "Updating debian/changelog version -> ${{ needs.validate.outputs.version }}"
+            dch --newversion "${{ needs.validate.outputs.version }}" "Automated CI release." || true
           fi
-          
-          echo "✓ Package built successfully"
+          dpkg-buildpackage -us -uc -b
+          if [ ! -f "../${{ needs.validate.outputs.package_file }}" ]; then
+            echo "✗ Package file not found: ../${{ needs.validate.outputs.package_file }}"; exit 1; fi
+          cp ../${{ needs.validate.outputs.package_file }} .
+          echo "✓ Package built successfully via debhelper"
       
-      - name: Test Package Installation
+      - name: Test Package Structure
         run: |
-          # Test package info
           echo "Package Information:"
           dpkg-deb --info "${{ needs.validate.outputs.package_file }}"
-          
           echo -e "\nPackage Contents:"
           dpkg-deb --contents "${{ needs.validate.outputs.package_file }}"
-          
-          # Test package structure
           echo -e "\nValidating package structure..."
           dpkg-deb --extract "${{ needs.validate.outputs.package_file }}" test-install/
-          
-          # Check critical files
-          if [ ! -f "test-install/usr/share/pi-usb-safegate/daemon.py" ]; then
-            echo "✗ Missing daemon.py"
-            exit 1
-          fi
-          
-          if [ ! -f "test-install/etc/systemd/system/pi-usb-safegate.service" ]; then
-            echo "✗ Missing systemd service file"
-            exit 1
-          fi
-          
+          test -f test-install/usr/share/pi-usb-safegate/daemon.py || { echo "✗ Missing daemon.py"; exit 1; }
+          test -f test-install/lib/systemd/system/pi-usb-safegate.service || { echo "✗ Missing systemd service file (/lib/systemd/system)"; exit 1; }
+          test -f test-install/etc/pi-usb-safegate/config.ini || { echo "✗ Missing config.ini"; exit 1; }
           echo "✓ Package structure validated"
       
       - name: Run Lintian Checks
@@ -251,20 +235,16 @@ jobs:
           
           ## 📦 Installation
           
-          ### Quick Installation
+          ### Quick Installation (recommended)
           \`\`\`bash
-          # Download and install the package
           wget https://github.com/${{ github.repository }}/releases/download/v${VERSION}/${{ needs.validate.outputs.package_file }}
-          sudo dpkg -i ${{ needs.validate.outputs.package_file }}
+          sudo apt install ./$(echo ${{ needs.validate.outputs.package_file }})
           
-          # Fix any dependency issues
-          sudo apt --fix-broken install
-          
-          # Configure the application
+          # (Optional) First-time interactive configuration
           sudo pi-usb-safegate-setup
           
           # Start the service
-          sudo systemctl start pi-usb-safegate
+          sudo systemctl start pi-usb-safegate.service
           \`\`\`
           
           ### Verification
