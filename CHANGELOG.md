@@ -14,6 +14,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Ongoing improvements
 
+## [1.0.1] - 2025-09-08
+
+### Changed
+- Migration von gksu zu pkexec / polkit (gksu entfernt – veraltet in aktuellen Debian/Raspberry Pi OS Releases)
+- Debian Paket-Abhängigkeiten bereinigt: Entfernt `python3-pip`, `python3-dev`; hinzugefügt systemweite Python-Abhängigkeiten (`python3-requests`, `python3-pyudev`, `python3-magic`) für automatische Installation via APT
+- Desktop-Start (`.desktop`) und Installationsskript auf `pkexec /usr/bin/pi-usb-safegate` umgestellt
+- Post-Installationsskript: Entfernt pip basierte Modulinstallation, stattdessen Validierungs-Check der Module
+- Control-Datei: Entfernt veraltete Abhängigkeit `gksu`, ersetzt durch `policykit-1`
+
+### Added
+- Polkit Policy Datei (`de.kasterdevelopment.pi-usb-safegate.policy`) für privilegierten GUI-Start
+
+### Fixed
+- Installationsfehler durch unerfüllbare gksu-Abhängigkeit
+- Potentielle Offline-Installationsprobleme (kein spontaner pip Download mehr notwendig)
+
+### Security
+- Reduziert Angriffsfläche durch Entfernung von gksu und Nutzung aktueller PolicyKit Authentifizierung
+
 ## [1.0.0] - 2024-01-15
 
 ### Added
@@ -152,6 +171,7 @@ For major version releases, document breaking changes:
 
 Compare versions and view detailed changes:
 
-- [Unreleased]: https://github.com/example/pi-usb-safegate/compare/v1.0.0...HEAD
-- [1.0.0]: https://github.com/example/pi-usb-safegate/compare/v0.1.0...v1.0.0
-- [0.1.0]: https://github.com/example/pi-usb-safegate/releases/tag/v0.1.0
+- [Unreleased]: https://github.com/Steffenkt/PI-USB-Data-Safegate/compare/v1.0.1...HEAD
+- [1.0.1]: https://github.com/Steffenkt/PI-USB-Data-Safegate/compare/v1.0.0...v1.0.1
+- [1.0.0]: https://github.com/Steffenkt/PI-USB-Data-Safegate/compare/v0.1.0...v1.0.0
+- [0.1.0]: https://github.com/Steffenkt/PI-USB-Data-Safegate/releases/tag/v0.1.0

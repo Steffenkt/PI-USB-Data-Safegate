@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Application info
 APP_NAME="PI USB Data Safegate"
-APP_VERSION="1.0.0"
+APP_VERSION="1.0.1"
 APP_DIR="/usr/share/pi-usb-safegate"
 BIN_DIR="/usr/bin"
 CONFIG_DIR="/etc/pi-usb-safegate"
@@ -240,7 +240,7 @@ Version=1.0
 Type=Application
 Name=PI USB Data Safegate
 Comment=Secure USB to cloud transfer with malware scanning
-Exec=gksu pi-usb-safegate
+Exec=pkexec /usr/bin/pi-usb-safegate
 Icon=pi-usb-safegate
 Terminal=false
 StartupNotify=true

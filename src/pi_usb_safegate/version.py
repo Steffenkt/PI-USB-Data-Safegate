@@ -9,13 +9,13 @@ from typing import Tuple, Dict
 
 
 # Application Version (Semantic Versioning)
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 # Version metadata
 VERSION_INFO = {
     'major': 1,
     'minor': 0,
-    'patch': 0,
+    'patch': 1,
     'release': 'stable',  # stable, beta, alpha, dev
     'build': None
 }

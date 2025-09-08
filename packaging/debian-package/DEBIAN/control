@@ -1,10 +1,10 @@
 Package: pi-usb-safegate
-Version: 1.0.0
+Version: 1.0.1
 Section: utils
 Priority: optional
 Architecture: all
 Essential: no
-Depends: python3 (>= 3.7), python3-pip, python3-tk, python3-dev, clamav, clamav-daemon, clamav-freshclam, udev, mount, util-linux, curl, wget, gksu
+Depends: python3 (>= 3.7), python3-requests, python3-tk, python3-pyudev, python3-magic, clamav, clamav-daemon, clamav-freshclam, udev, mount, util-linux, curl, wget, policykit-1
 Recommends: desktop-file-utils, shared-mime-info
 Suggests: systemd
 Installed-Size: 1024

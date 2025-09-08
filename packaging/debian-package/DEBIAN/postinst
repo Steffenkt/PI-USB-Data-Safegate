@@ -31,13 +31,34 @@ case "$1" in
             chmod 640 "$CONFIG_DIR/config.ini"
         fi
         
-        # Install Python dependencies
-        echo "Installing Python dependencies..."
-        pip3 install requests configparser pathlib || true
+        # Python-Abhängigkeiten werden jetzt über Debian Depends (python3-requests, python3-pyudev, python3-magic) gelöst.
+        # Optionaler Fallback Hinweis, falls etwas fehlt (z.B. in Minimal-Images):
+        echo "Verifiziere Python Module..."
+        if ! python3 <<'EOF'
+import importlib, sys
+mods = ["requests","pyudev","magic"]
+missing = []
+for m in mods:
+    try:
+        importlib.import_module(m)
+    except Exception:
+        missing.append(m)
+if missing:
+    print("Fehlende Module:", ", ".join(missing))
+    sys.exit(2)
+print("Alle Python Module vorhanden.")
+EOF
+        then
+            echo "Warnung: Ein benötigtes Python-Modul fehlt. Bitte Installation prüfen (apt install python3-<paket>)." >&2
+        fi
         
         # Update ClamAV database
-        echo "Updating ClamAV database (this may take a while)..."
-        freshclam || echo "ClamAV database update failed, but continuing..."
+        if command -v freshclam >/dev/null 2>&1; then
+            echo "Updating ClamAV database (this may take a while)..."
+            freshclam || echo "ClamAV database update failed, continuing..."
+        else
+            echo "Hinweis: freshclam nicht gefunden (clamav-freshclam Paket?). Überspringe Datenbank-Update." >&2
+        fi
         
         # Enable and start ClamAV services
         if command -v systemctl >/dev/null 2>&1; then

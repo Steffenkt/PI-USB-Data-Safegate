@@ -80,7 +80,7 @@ sudo ./install.sh
 
 # Or build and install package
 ./build-package.sh
-sudo dpkg -i pi-usb-safegate_1.0.0_all.deb
+sudo dpkg -i pi-usb-safegate_1.0.1_all.deb
 ```
 
 ### 2. Configuration

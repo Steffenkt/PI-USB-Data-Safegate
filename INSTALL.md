@@ -4,11 +4,11 @@
 
 ### Option 1: Using the Debian Package (Recommended)
 
-1. Download the package file: `pi-usb-safegate_1.0.0_all.deb`
+1. Download the package file: `pi-usb-safegate_1.0.1_all.deb`
 
 2. Install the package:
    ```bash
-   sudo dpkg -i pi-usb-safegate_1.0.0_all.deb
+   sudo dpkg -i pi-usb-safegate_1.0.1_all.deb
    ```
 
 3. If there are dependency issues, fix them:
