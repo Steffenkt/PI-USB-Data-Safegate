@@ -129,6 +129,7 @@ jobs:
             debhelper \
             devscripts \
             dh-python \
+            python3-all \
             build-essential \
             lintian
       
