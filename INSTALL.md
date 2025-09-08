@@ -6,12 +6,18 @@
 
 1. Download the package file: `pi-usb-safegate_1.0.1_all.deb`
 
-2. Install the package:
+2. Install the package WITH automatic dependency resolution (empfohlen – apt löst Depends automatisch):
    ```bash
-   sudo dpkg -i pi-usb-safegate_1.0.1_all.deb
+   sudo apt update
+   sudo apt install ./pi-usb-safegate_1.0.1_all.deb
    ```
 
-3. If there are dependency issues, fix them:
+   Alternativ (komfortabler) mit beiliegendem Wrapper-Skript:
+   ```bash
+   sudo ./scripts/install-deb.sh pi-usb-safegate_1.0.1_all.deb
+   ```
+
+3. (Nur falls doch dpkg -i verwendet wurde und Abhängigkeiten fehlen):
    ```bash
    sudo apt --fix-broken install
    ```

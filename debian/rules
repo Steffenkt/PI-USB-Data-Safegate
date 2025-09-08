@@ -1,0 +1,58 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	@echo "(Python build step nicht erforderlich – reine Skript-Anwendung)"
+
+override_dh_auto_install:
+	# Verzeichnisstruktur
+	mkdir -p debian/pi-usb-safegate/usr/share/pi-usb-safegate
+	mkdir -p debian/pi-usb-safegate/usr/bin
+	mkdir -p debian/pi-usb-safegate/etc/pi-usb-safegate
+	mkdir -p debian/pi-usb-safegate/var/log/pi-usb-safegate
+
+	# Anwendungscode
+	cp -r src/pi_usb_safegate/* debian/pi-usb-safegate/usr/share/pi-usb-safegate/
+
+	# Wrapper Skripte
+	install -m 0755 debian/wrappers/pi-usb-safegate debian/pi-usb-safegate/usr/bin/pi-usb-safegate
+	install -m 0755 debian/wrappers/pi-usb-safegate-setup debian/pi-usb-safegate/usr/bin/pi-usb-safegate-setup
+
+	# Konfiguration (als Conffile)
+	install -m 0640 config/config.ini debian/pi-usb-safegate/etc/pi-usb-safegate/config.ini
+
+	# systemd Service (nach Policy unter /lib/systemd/system)
+	install -D -m 0644 config/pi-usb-safegate.service debian/pi-usb-safegate/lib/systemd/system/pi-usb-safegate.service
+
+	# Udev Regel
+	install -D -m 0644 debian/udev/99-pi-usb-safegate.rules debian/pi-usb-safegate/usr/lib/udev/rules.d/99-pi-usb-safegate.rules
+
+	# Desktop Eintrag & Icon (falls vorhanden)
+	install -d debian/pi-usb-safegate/usr/share/applications
+	install -d debian/pi-usb-safegate/usr/share/pixmaps
+	if [ -f packaging/debian-package/usr/share/applications/pi-usb-safegate.desktop ]; then \
+	  install -m 0644 packaging/debian-package/usr/share/applications/pi-usb-safegate.desktop debian/pi-usb-safegate/usr/share/applications/; \
+	fi
+	if [ -f packaging/debian-package/usr/share/pixmaps/pi-usb-safegate.svg ]; then \
+	  install -m 0644 packaging/debian-package/usr/share/pixmaps/pi-usb-safegate.svg debian/pi-usb-safegate/usr/share/pixmaps/; \
+	fi
+
+	# Logrotate
+	install -D -m 0644 debian/logrotate debian/pi-usb-safegate/etc/logrotate.d/pi-usb-safegate
+
+override_dh_installinit:
+	dh_installinit --no-start
+
+override_dh_systemd_enable:
+	dh_systemd_enable --name pi-usb-safegate pi-usb-safegate.service
+
+override_dh_systemd_start:
+	dh_systemd_start --no-start
+
+override_dh_fixperms:
+	dh_fixperms
+	chmod 0755 debian/pi-usb-safegate/usr/share/pi-usb-safegate/main.py || true

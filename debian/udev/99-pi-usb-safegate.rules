@@ -1,0 +1,2 @@
+# USB storage device rules for PI USB Data Safegate
+SUBSYSTEM=="block", KERNEL=="sd[a-z][0-9]", ACTION=="add", ENV{ID_FS_USAGE}=="filesystem", TAG+="systemd", ENV{SYSTEMD_WANTS}+="pi-usb-safegate-notify@%k.service"

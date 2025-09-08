@@ -9,7 +9,7 @@ PACKAGE_FILE = $(PACKAGE_NAME)_$(PACKAGE_VERSION)_$(PACKAGE_ARCH).deb
 BUILD_DIR = build
 PACKAGE_DIR = packaging/debian-package
 
-.PHONY: all clean build install test lint package help
+.PHONY: all clean build install test lint package help debuild deb-src
 
 # Default target
 all: package
@@ -28,6 +28,15 @@ build: clean
 
 # Alias for build
 package: build
+
+# Build via debhelper (debian/ Verzeichnis)
+debuild:
+	@echo "Baue Paket mit debhelper (debuild)..."
+	debuild -us -uc
+
+deb-src:
+	@echo "Erzeuge Source-Paket..."
+	debuild -S -us -uc
 
 # Install the package (for testing)
 install: build

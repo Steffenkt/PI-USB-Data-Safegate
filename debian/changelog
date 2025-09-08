@@ -1,0 +1,5 @@
+pi-usb-safegate (1.0.1) unstable; urgency=medium
+
+  * Initial debhelper-basierte Paketierung.
+
+ -- Steffen Kaster <skaster@kaster-development.de>  Mon, 08 Sep 2025 10:00:00 +0000

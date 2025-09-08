@@ -1,0 +1,34 @@
+#!/bin/bash
+# Setup Script (vereinfacht, nutzt bestehendes Skript falls vorhanden)
+
+CONFIG_FILE="/etc/pi-usb-safegate/config.ini"
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Dieses Setup benötigt Root-Rechte." >&2
+    exit 1
+fi
+
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "Konfigurationsdatei fehlt ( $CONFIG_FILE )." >&2
+    exit 1
+fi
+
+echo "Interaktive Erstkonfiguration (vereinfachte Variante)"
+read -p "SMTP Server: " smtp_server
+read -p "SMTP Port (587): " smtp_port
+smtp_port=${smtp_port:-587}
+read -p "Email Benutzer: " email_username
+read -s -p "Email Passwort: " email_password; echo
+read -p "Sender Name: " sender_name
+
+tmp=$(mktemp)
+cp "$CONFIG_FILE" "$tmp"
+sed -i "s|smtp_server = .*|smtp_server = $smtp_server|" "$tmp"
+sed -i "s|smtp_port = .*|smtp_port = $smtp_port|" "$tmp"
+sed -i "s|smtp_username = .*|smtp_username = $email_username|" "$tmp"
+sed -i "s|smtp_password = .*|smtp_password = $email_password|" "$tmp"
+sed -i "s|sender_name = .*|sender_name = $sender_name|" "$tmp"
+cp "$tmp" "$CONFIG_FILE"
+rm "$tmp"
+
+echo "Konfiguration gespeichert. Start: sudo systemctl start pi-usb-safegate.service"

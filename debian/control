@@ -1,0 +1,23 @@
+Source: pi-usb-safegate
+Section: utils
+Priority: optional
+Maintainer: Steffen Kaster <skaster@kaster-development.de>
+Build-Depends: debhelper-compat (= 13), dh-sequence-python3, python3-all
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/Steffenkt/PI-USB-Data-Safegate
+
+Package: pi-usb-safegate
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}, python3-requests, python3-pyudev, python3-magic, clamav, clamav-daemon, clamav-freshclam, udev, mount, util-linux, curl, wget, policykit-1
+Recommends: desktop-file-utils, shared-mime-info
+Description: Secure USB to cloud transfer with malware scanning
+ PI USB Data Safegate ist eine sicherheitsfokussierte Anwendung für
+ Raspberry Pi / Debian Systeme zum sicheren Scannen und Hochladen von
+ USB-Dateien in Cloud-Speicher (Nextcloud / Dropbox) nach Malware-Prüfung.
+ Features:
+  * ClamAV Scan vor Upload
+  * Email Benachrichtigung mit Download-Link
+  * Automatische Aufräumung nach 7 Tagen
+  * GUI Oberfläche und Status-Logging
+  * Udev Integration zur Gerätedetektion
