@@ -1,0 +1,37 @@
+#!/bin/bash
+set -e
+
+case "$1" in
+    configure)
+        CONFIG_DIR="/etc/pi-usb-safegate"
+        LOG_DIR="/var/log/pi-usb-safegate"
+
+        mkdir -p "$CONFIG_DIR" "$LOG_DIR"
+        chmod 755 "$CONFIG_DIR" "$LOG_DIR"
+        chown root:root "$CONFIG_DIR" "$LOG_DIR"
+
+        # Standard-Konfig falls fehlt (Conffile bleibt erhalten bei Updates)
+        if [ ! -f "$CONFIG_DIR/config.ini" ]; then
+            install -m 0640 -o root -g root /usr/share/pi-usb-safegate/config.ini "$CONFIG_DIR/config.ini" 2>/dev/null || true
+        fi
+
+        # ClamAV Datenbank Update (nicht kritisch)
+        if command -v freshclam >/dev/null 2>&1; then
+            freshclam || echo "Warnung: freshclam Update fehlgeschlagen (ignoriert)" >&2
+        fi
+
+        # systemd Reload & Aktivierung (Start dem Nutzer überlassen)
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl daemon-reload || true
+            systemctl enable pi-usb-safegate.service || true
+        fi
+
+        # Desktop DB aktualisieren
+        if command -v update-desktop-database >/dev/null 2>&1; then
+            update-desktop-database /usr/share/applications || true
+        fi
+
+        ;;
+esac
+
+exit 0

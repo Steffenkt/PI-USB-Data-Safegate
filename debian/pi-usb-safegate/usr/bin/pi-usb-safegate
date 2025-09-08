@@ -1,0 +1,14 @@
+#!/bin/bash
+# Launcher für PI USB Data Safegate
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Dieses Programm benötigt Root-Rechte (USB Zugriff)."
+    echo "Bitte mit: sudo pi-usb-safegate" >&2
+    exit 1
+fi
+
+cd /usr/share/pi-usb-safegate || {
+  echo "Anwendungsverzeichnis nicht gefunden" >&2; exit 2; }
+
+export PYTHONPATH="/usr/share/pi-usb-safegate:$PYTHONPATH"
+exec /usr/bin/python3 main.py "$@"

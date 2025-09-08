@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+case "$1" in
+    purge)
+        # Konfig & Logs nur bei purge optional entfernen
+        rm -rf /var/log/pi-usb-safegate || true
+        ;;
+esac
+
+exit 0

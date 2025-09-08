@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PI USB Data Safegate
+Comment=Secure USB to cloud transfer with malware scanning
+Exec=pkexec /usr/bin/pi-usb-safegate
+Icon=pi-usb-safegate
+Terminal=false
+StartupNotify=true
+Categories=System;Security;Utility;
+Keywords=USB;Security;Malware;Cloud;Transfer;
+MimeType=
